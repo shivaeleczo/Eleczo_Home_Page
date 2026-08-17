@@ -1,0 +1,214 @@
+/* ============================================================================
+   DESIGN TOKENS — AS-011, UNAPPROVED PLACEHOLDERS
+
+   DS-05 is BLOCKED. No approved Eleczo brand palette, type family or logo rule
+   exists anywhere in this project.
+
+   Every value in this file is a PLACEHOLDER chosen for legibility and WCAG 2.2
+   AA contrast. None of it was sampled from eleczo.com — sampling was explicitly
+   refused, because an extracted value becomes indistinguishable from an
+   approved one the moment it enters a token file.
+
+   When DS-05 delivers an approved palette, replace the values in this file.
+   The token ARCHITECTURE (naming, scale, semantic layering) is intended to
+   survive that replacement. The VALUES are not.
+
+   Contrast verified against --surface / --ink pairs at AA (4.5:1 body,
+   3:1 large text and UI). Re-verify after any palette swap.
+   ========================================================================== */
+
+:root {
+  /* ---- Primitive scale: neutrals ---- */
+  --grey-0:   #ffffff;
+  --grey-50:  #f7f8fa;
+  --grey-100: #eef0f4;
+  --grey-200: #dfe3ea;
+  --grey-300: #c6ccd8;
+  --grey-400: #98a1b2;
+  --grey-500: #6b7688;
+  --grey-600: #4d5768;
+  --grey-700: #363e4c;
+  --grey-800: #222833;
+  --grey-900: #151a22;
+  --grey-950: #0d1117;
+
+  /* ---- Primitive scale: action (technical blue) ---- */
+  --blue-100: #dceaf5;
+  --blue-300: #7fb4d8;
+  --blue-500: #2b7fb5;
+  --blue-600: #1a6291;
+  --blue-700: #0b4a6f;
+  --blue-800: #083a56;
+  --blue-900: #06293d;
+
+  /* ---- Primitive scale: accent (copper) ---- */
+  --copper-100: #fbe6da;
+  --copper-400: #e2703a;
+  --copper-600: #c2410c;
+  --copper-700: #9a3412;
+
+  /* ---- Primitive scale: status ---- */
+  --green-600: #15803d;
+  --amber-600: #a16207;
+  --amber-100: #fdf3d7;
+  --red-600:   #b91c1c;
+
+  /* ---- Semantic: surfaces ---- */
+  --surface:         var(--grey-0);
+  --surface-raised:  var(--grey-50);
+  --surface-sunken:  var(--grey-100);
+  --surface-inverse: var(--grey-900);
+
+  /* ---- Semantic: ink ---- */
+  --ink:         var(--grey-900);
+  --ink-muted:   var(--grey-600);
+  --ink-subtle:  var(--grey-500);
+  --ink-inverse: var(--grey-0);
+
+  /* ---- Semantic: lines ---- */
+  --border:        var(--grey-200);
+  --border-strong: var(--grey-300);
+
+  /* ---- Semantic: action ---- */
+  --action:          var(--blue-700);
+  --action-hover:    var(--blue-800);
+  --action-ink:      var(--grey-0);
+  --action-subtle:   var(--blue-100);
+  --action-on-light: var(--blue-700);
+
+  /* ---- Semantic: accent ---- */
+  --accent:        var(--copper-600);
+  --accent-hover:  var(--copper-700);
+  --accent-subtle: var(--copper-100);
+
+  /* ---- Semantic: status ---- */
+  --blocked-bg:     var(--amber-100);
+  --blocked-ink:    var(--amber-600);
+  --blocked-border: #e3c778;
+
+  /* ---- Focus ---- */
+  --focus-ring: var(--copper-600);
+
+  /* ---- Type: system stack only ----
+     No webfont. DS-05 supplies no licensed type family, and the performance
+     budget counts webfont weight. A system stack commits to nothing. */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+               "Liberation Mono", monospace;
+
+  /* ---- Type scale (1.200 minor third, 16px base) ---- */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.375rem;
+  --text-2xl:  1.75rem;
+  --text-3xl:  2.25rem;
+  --text-4xl:  2.875rem;
+
+  --leading-tight: 1.15;
+  --leading-snug:  1.35;
+  --leading-normal: 1.6;
+
+  /* ---- Space scale (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ---- Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+  /* ---- Elevation ---- */
+  --shadow-sm: 0 1px 2px rgb(13 17 23 / 0.06), 0 1px 3px rgb(13 17 23 / 0.08);
+  --shadow-md: 0 4px 12px rgb(13 17 23 / 0.08), 0 2px 4px rgb(13 17 23 / 0.05);
+  --shadow-lg: 0 12px 32px rgb(13 17 23 / 0.12), 0 4px 8px rgb(13 17 23 / 0.06);
+
+  /* ---- Layout ---- */
+  --container: 1280px;
+  --container-narrow: 940px;
+}
+
+/* ============================================================================
+   Dark theme. Only tokens are redefined — no component rule is theme-aware.
+   That is the point of the semantic layer: one swap, whole page follows.
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface:         var(--grey-950);
+    --surface-raised:  var(--grey-900);
+    --surface-sunken:  var(--grey-800);
+    --surface-inverse: var(--grey-100);
+
+    --ink:         #e8ecf2;
+    --ink-muted:   #a3adbd;
+    --ink-subtle:  #7c8698;
+    --ink-inverse: var(--grey-950);
+
+    --border:        #262d3a;
+    --border-strong: #363e4c;
+
+    --action:          var(--blue-300);
+    --action-hover:    #a3ccea;
+    --action-ink:      var(--grey-950);
+    --action-subtle:   #10344b;
+    --action-on-light: var(--blue-300);
+
+    --accent:        #f08a52;
+    --accent-hover:  #f5a375;
+    --accent-subtle: #3d2013;
+
+    --blocked-bg:     #33280d;
+    --blocked-ink:    #e0b64a;
+    --blocked-border: #5c4a1c;
+
+    --focus-ring: #f08a52;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+    --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.55);
+  }
+}
+
+[data-theme="dark"] {
+  --surface:         var(--grey-950);
+  --surface-raised:  var(--grey-900);
+  --surface-sunken:  var(--grey-800);
+  --surface-inverse: var(--grey-100);
+
+  --ink:         #e8ecf2;
+  --ink-muted:   #a3adbd;
+  --ink-subtle:  #7c8698;
+  --ink-inverse: var(--grey-950);
+
+  --border:        #262d3a;
+  --border-strong: #363e4c;
+
+  --action:          var(--blue-300);
+  --action-hover:    #a3ccea;
+  --action-ink:      var(--grey-950);
+  --action-subtle:   #10344b;
+  --action-on-light: var(--blue-300);
+
+  --accent:        #f08a52;
+  --accent-hover:  #f5a375;
+  --accent-subtle: #3d2013;
+
+  --blocked-bg:     #33280d;
+  --blocked-ink:    #e0b64a;
+  --blocked-border: #5c4a1c;
+
+  --focus-ring: #f08a52;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.55);
+}

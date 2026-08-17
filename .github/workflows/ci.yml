@@ -1,0 +1,117 @@
+name: CI
+
+# Build and validate only. This workflow deliberately has no deploy job.
+# See docs/DEPLOYMENT.md for why, and for what would need to change to add one.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Approval gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enforce the approval gate
+        run: node scripts/check-gate.mjs
+
+      - name: Publish gate status to the run summary
+        if: always()
+        run: |
+          status=$(node -e "try{console.log(require('./gate-report.json').status)}catch{console.log('UNKNOWN')}")
+          echo "### Approval gate: \`$status\`" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$status" = "CLOSED" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Front-end code, UI design and Magento template code are **not authorised**." >> "$GITHUB_STEP_SUMMARY"
+            echo "Source: [docs/03-approval-gate.md](https://github.com/shivaeleczo/Eleczo-Home-Page-Design/blob/main/docs/03-approval-gate.md)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gate-report
+          path: gate-report.json
+          retention-days: 30
+
+  claims:
+    name: Claims constraint (CC-01)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enforce CC-01
+        run: node scripts/check-claims.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: claims-report
+          path: claims-report.json
+          retention-days: 30
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [gate, claims]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # DEC-002 (frontend approach) is undecided and DS-01 has not confirmed the
+      # platform, so there is no bundler and no dependency. scripts/build.mjs
+      # copies src/ to dist/ and nothing else, on purpose.
+      - name: Detect build tooling
+        id: detect
+        run: |
+          if [ -f scripts/build.mjs ]; then
+            echo "buildable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "buildable=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.detect.outputs.buildable == 'true'
+        run: node scripts/build.mjs
+
+      - name: No build tooling yet
+        if: steps.detect.outputs.buildable == 'false'
+        run: |
+          echo "No build script - nothing to compile."
+          echo "### Build: skipped" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Summarise
+        if: steps.detect.outputs.buildable == 'true'
+        run: |
+          echo "### Build: ok" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Output is an **unapproved prototype** under DES-WAIVER-001, resting on AS-011, AS-012 and AS-013." >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.detect.outputs.buildable == 'true'
+        with:
+          name: homepage-prototype
+          path: dist
+          if-no-files-found: error
+          retention-days: 30

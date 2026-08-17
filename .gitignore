@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build output
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# CI report artifacts (regenerated on every run - never committed)
+gate-report.json
+claims-report.json
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

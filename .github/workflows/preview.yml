@@ -1,0 +1,79 @@
+name: Review preview
+
+# Publishes the prototype to GitHub Pages so stakeholders have something to look
+# at. This is a REVIEW PREVIEW, not a deployment:
+#
+#   - it serves robots.txt Disallow and the page carries <meta robots noindex>
+#   - it carries a permanent UNAPPROVED PROTOTYPE banner
+#   - it runs only after the gate and claims checks pass
+#
+# It is NOT staging and NOT production. See docs/DEPLOYMENT.md for the
+# preconditions on a real deploy - DS-01, DS-05 and DS-09 all remain unmet.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: Governance checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Approval gate
+        run: node scripts/check-gate.mjs
+      - name: Claims constraint (CC-01)
+        run: node scripts/check-claims.mjs
+
+  publish:
+    name: Publish preview
+    needs: guard
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build
+        run: node scripts/build.mjs
+
+      - name: Confirm the preview is non-indexable
+        run: |
+          set -e
+          grep -q "Disallow: /" dist/robots.txt || { echo "robots.txt is not disallowing"; exit 1; }
+          grep -q 'name="robots" content="noindex' dist/index.html || { echo "index.html is missing the noindex meta"; exit 1; }
+          echo "Preview is non-indexable. Correct for unapproved work."
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Summarise
+        run: |
+          echo "### Review preview published" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.deploy.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Unapproved prototype** under DES-WAIVER-001. Non-indexable. Not staging, not production." >> "$GITHUB_STEP_SUMMARY"
