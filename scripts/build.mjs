@@ -30,9 +30,27 @@ cpSync(SRC, OUT, {
   filter: (source) => !source.endsWith('README.md'),
 })
 
-// The prototype must not be indexed. The governance repo already publishes an
-// unapproved prototype on a public Pages site; this one does not repeat that.
-writeFileSync(join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /\n')
+// The prototype must not be indexed - and the way to achieve that is the
+// noindex meta tag in index.html, NOT a robots.txt Disallow.
+//
+// A blanket Disallow is the classic own-goal here: it stops the crawler
+// fetching the page, so the crawler never reads the noindex, and a URL that is
+// linked publicly (this one is, from the README) can still be indexed URL-only
+// with no way to remove it. Crawling must be ALLOWED for noindex to work.
+writeFileSync(
+  join(OUT, 'robots.txt'),
+  [
+    '# Crawling is deliberately allowed.',
+    '#',
+    '# Deindexing is handled by <meta name="robots" content="noindex, nofollow">',
+    '# in index.html. A Disallow rule here would prevent crawlers from ever',
+    '# reading that tag, which would make this preview MORE likely to be',
+    '# indexed (URL-only), not less.',
+    'User-agent: *',
+    'Allow: /',
+    '',
+  ].join('\n'),
+)
 
 // Marker so a downloaded artifact can never be mistaken for approved work.
 writeFileSync(

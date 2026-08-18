@@ -58,9 +58,17 @@ jobs:
       - name: Confirm the preview is non-indexable
         run: |
           set -e
-          grep -q "Disallow: /" dist/robots.txt || { echo "robots.txt is not disallowing"; exit 1; }
-          grep -q 'name="robots" content="noindex' dist/index.html || { echo "index.html is missing the noindex meta"; exit 1; }
-          echo "Preview is non-indexable. Correct for unapproved work."
+          # noindex in the page is what actually deindexes.
+          grep -q 'name="robots" content="noindex' dist/index.html \
+            || { echo "index.html is missing the noindex meta"; exit 1; }
+          # And robots.txt must NOT block crawling, or the noindex is never read.
+          if grep -qE '^\s*Disallow:\s*/\s*$' dist/robots.txt; then
+            echo "robots.txt blanket-disallows crawling."
+            echo "That prevents crawlers reading the noindex meta, making the page"
+            echo "MORE likely to be indexed URL-only. Allow crawling instead."
+            exit 1
+          fi
+          echo "Preview is crawlable and noindexed - the combination that actually deindexes."
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

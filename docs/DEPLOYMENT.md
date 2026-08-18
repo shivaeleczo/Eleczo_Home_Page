@@ -14,14 +14,25 @@ It is hedged deliberately:
 
 | Guard | Why |
 |---|---|
-| `robots.txt` serves `Disallow: /` | Unapproved work must not be indexed |
-| `<meta name="robots" content="noindex, nofollow">` | Belt and braces — the workflow fails if either guard is missing |
+| `<meta name="robots" content="noindex, nofollow">` | This is what actually deindexes. The workflow fails if it goes missing |
+| `robots.txt` **allows** crawling | Deliberate. See below |
 | Permanent UNAPPROVED PROTOTYPE banner in the page | The page must state what it is even when the URL is shared without context |
 | `PROTOTYPE.txt` written into every artifact | A downloaded copy carries the same warning |
 | Blocked by `guard` job | A CC-01 violation or a revoked waiver stops publication |
 
-The governance repo publishes a prototype on a **public, indexable** Pages site.
-This preview does not repeat that mistake.
+### Why robots.txt allows crawling
+
+This looks backwards and is not. `Disallow: /` stops a crawler **fetching** the
+page — so it never reads the `noindex` tag. A URL that is linked publicly (this
+one is, from the README) can then be indexed **URL-only**, showing a bare link
+with no description and no supported route to remove it.
+
+To deindex reliably the crawler must be allowed in, so it can see `noindex` and
+drop the page. The workflow enforces both halves: it fails if the meta tag is
+missing, **and** it fails if robots.txt blanket-disallows.
+
+The governance repo's Pages site handles this correctly already — it serves
+`noindex, nofollow` with no robots.txt.
 
 ## What does not exist: staging and production
 
